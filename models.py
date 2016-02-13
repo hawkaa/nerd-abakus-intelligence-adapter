@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Table, Date
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Table, Date, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.session import object_session
 import re
@@ -170,3 +170,26 @@ class SurveyResult(Base):
     survey_id = Column(Integer, ForeignKey('core_user.id'))
 
     alternative = relationship('SurveyAlternative', back_populates = 'results')
+
+class Event(Base):
+    __tablename__ = 'event_event'
+    id = Column(Integer, primary_key = True)
+    name = Column(String)
+    type_id = Column(Integer, ForeignKey('event_eventtype.id'))
+    intro = Column(Text)
+    location = Column(String)
+    capacity = Column(Integer)
+    is_registration_required = Column(Boolean)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    feedback_when_registering = Column('feedback_when_registrating', Boolean)
+    price_members = Column(Integer)
+    price_guests = Column(Integer)
+
+    type = relationship('EventType')
+
+
+class EventType(Base):
+    __tablename__ = 'event_eventtype'
+    id = Column(Integer, primary_key = True)
+    name = Column(String)
