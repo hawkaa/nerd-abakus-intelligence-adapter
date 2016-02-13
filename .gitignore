@@ -65,3 +65,5 @@ target/
 # pyenv
 .python-version
 
+# nerd-abakus-intelligence-adapter stuff
+out/

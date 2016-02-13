@@ -96,6 +96,7 @@ class Group(Base):
     id = Column(Integer, primary_key = True)
     deleted = Column(Boolean)
     name = Column(String)
+    is_committee = Column(Boolean)
 
     def __repr__(self):
         return self.name
