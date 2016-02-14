@@ -175,6 +175,7 @@ class SurveyResult(Base):
 class Event(Base):
     __tablename__ = 'event_event'
     id = Column(Integer, primary_key = True)
+    deleted = Column(Boolean)
     name = Column(String)
     type_id = Column(Integer, ForeignKey('event_eventtype.id'))
     intro = Column(Text)
@@ -194,3 +195,16 @@ class EventType(Base):
     __tablename__ = 'event_eventtype'
     id = Column(Integer, primary_key = True)
     name = Column(String)
+
+class EventRegistration(Base):
+    __tablename__ = 'event_registration'
+    id = Column(Integer, primary_key = True)
+    deleted = Column(Boolean)
+    user_id = Column(Integer, ForeignKey('core_user.id'))
+    event_id = Column(Integer, ForeignKey('event_event.id'))
+    date = Column(DateTime)
+    status = Column(Integer)
+    presence = Column(Integer)
+
+    user = relationship('User')
+    event = relationship('Event')

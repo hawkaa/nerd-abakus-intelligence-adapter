@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, date
 from models import *
 
 class TableGenerator():
@@ -50,6 +51,8 @@ class TableGenerator():
 
     def _gen_eventer(self, p):
         events = self.session.query(Event)\
+            .filter(Event.deleted == False)\
+            .filter(Event.start_date >= date(2000, 1, 1))\
             .filter(Event.capacity < 1000) # filter bogus events
 
         event_mappings = {
@@ -84,9 +87,10 @@ class TableGenerator():
     def _gen_brukergrupper(self, p):
         groups = self.session.query(Group)\
             .filter(Group.deleted == False)
-        p.row('Gruppenavn', 'Gruppe Er Komite')
+        p.row('Gruppe ID', 'Gruppenavn', 'Gruppe Er Komite')
         for group in groups:
             p.row(
+                group.id,
                 group.name,
                 group.is_committee
             )
@@ -97,6 +101,34 @@ class TableGenerator():
             p.row(
                 m.user_id,
                 m.group_id
+            )
+    def _gen_eventregistrering(self, p):
+        reg = self.session.query(EventRegistration)\
+            .filter(EventRegistration.deleted == False)
+
+        status = {
+            1 : 'Påmeldt',
+            2 : 'Uregistrert',
+            3 : 'Fest',
+            4 : 'Annet'
+        }
+        presence = {
+            0 : 'Uvisst',
+            1 : 'Tilstede',
+            2 : 'Ikke tilstede',
+            3 : 'Uvisst'
+        }
+
+        p.row('Eventregistrering ID', 'Bruker ID', 'Event ID', 'Eventregistrering Dato', 'Eventregistrering Status', 'Eventregistrering Tilstedeværelse')
+
+        for r in reg:
+            p.row(
+                r.id,
+                r.user_id,
+                r.event_id,
+                r.date,
+                status[r.status],
+                presence[r.presence]
             )
 
 
@@ -110,13 +142,15 @@ class Printer:
 
     def clean_value(self, val):
         if isinstance(val, str):
-            return val.replace('\n', ' ').replace('\r', ' ')
+            return val.replace('\n', ' ').replace('\r', ' ').replace('|', '')
         elif isinstance(val, bool):
             return 'Ja' if val else 'Nei'
+        elif type(val) is datetime.datetime:
+            return val.strftime('%Y-%m-%d %H:%M')
         return val
 
     def row(self, *args):
         values = map(self.clean_value, args)
         self.file.write('|'.join([str(element) for element in values]))
-        self.file.write('\r\n')
+        self.file.write('\n')
 
